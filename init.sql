@@ -1,29 +1,29 @@
--- Drop and recreate the tables if they exist
-DROP TABLE IF EXISTS Students;
-DROP TABLE IF EXISTS Groups;
+-- Create the database
+CREATE DATABASE school
+ENCODING 'UTF8';
 
 -- Create the tables if they don't exist
-CREATE TABLE IF NOT EXISTS Groups (
+CREATE TABLE IF NOT EXISTS Classes (
   id SERIAL PRIMARY KEY,
-  group_name VARCHAR(255)
+  class_name VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS Students (
   id SERIAL PRIMARY KEY,
   lastname VARCHAR(255),
   firstname VARCHAR(255),
-  group_id INT,
-  FOREIGN KEY (group_id) REFERENCES Groups(id)
+  class_id INT,
+  FOREIGN KEY (class_id) REFERENCES Classes(id)
 );
 
--- Insert data into the Groups table
-INSERT INTO Groups (group_name)
+-- Insert data into the Classes table
+INSERT INTO Classes (class_name)
 VALUES
 ('s6_alt1'),
 ('s6_alt2');
 
 -- Insert data into the Students table
-INSERT INTO Students (lastname, firstname, group_id)
+INSERT INTO Students (lastname, firstname, class_id)
 VALUES
 ('BLONDIEAU', 'GABIN', 1),
 ('CHU', 'THOMAS', 1),
@@ -46,3 +46,21 @@ VALUES
 ('LAVAL', 'BAPTISTE', 2),
 ('MEISTER', 'NICOLAS', 2),
 ('MOUMEN', 'TAHA', 2);
+
+REVOKE ALL ON DATABASE school FROM PUBLIC;
+
+CREATE ROLE readaccess;
+GRANT CONNECT ON DATABASE school TO readaccess;
+GRANT USAGE ON SCHEMA public TO readaccess;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO readaccess;
+
+CREATE ROLE adminaccess;
+GRANT CONNECT ON DATABASE school TO adminaccess;
+GRANT USAGE ON SCHEMA public TO adminaccess;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO adminaccess;
+
+CREATE ROLE user0 WITH PASSWORD 'tp_db';
+GRANT readaccess TO user0;
+
+CREATE ROLE admin0 WITH PASSWORD 'tp_db';
+GRANT adminaccess TO admin0;
