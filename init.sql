@@ -1,29 +1,31 @@
--- Create the database
 CREATE DATABASE school
 ENCODING 'UTF8';
 
--- Create the tables if they don't exist
-CREATE TABLE IF NOT EXISTS Classes (
+\c school;
+
+-- Create the classes table
+CREATE TABLE IF NOT EXISTS classes (
   id SERIAL PRIMARY KEY,
   class_name VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS Students (
+-- Create the students table
+CREATE TABLE IF NOT EXISTS students (
   id SERIAL PRIMARY KEY,
   lastname VARCHAR(255),
   firstname VARCHAR(255),
   class_id INT,
-  FOREIGN KEY (class_id) REFERENCES Classes(id)
+  FOREIGN KEY (class_id) REFERENCES classes(id)
 );
 
--- Insert data into the Classes table
-INSERT INTO Classes (class_name)
+-- Insert data into the classes table
+INSERT INTO classes (class_name)
 VALUES
 ('s6_alt1'),
 ('s6_alt2');
 
--- Insert data into the Students table
-INSERT INTO Students (lastname, firstname, class_id)
+-- Insert data into the students table
+INSERT INTO students (lastname, firstname, class_id)
 VALUES
 ('BLONDIEAU', 'GABIN', 1),
 ('CHU', 'THOMAS', 1),
@@ -49,18 +51,25 @@ VALUES
 
 REVOKE ALL ON DATABASE school FROM PUBLIC;
 
-CREATE ROLE readaccess;
-GRANT CONNECT ON DATABASE school TO readaccess;
-GRANT USAGE ON SCHEMA public TO readaccess;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO readaccess;
+CREATE USER spectator WITH PASSWORD 'password';
+CREATE USER owner_user WITH PASSWORD 'password';
+CREATE USER admin_user WITH PASSWORD 'password';
 
-CREATE ROLE adminaccess;
-GRANT CONNECT ON DATABASE school TO adminaccess;
-GRANT USAGE ON SCHEMA public TO adminaccess;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO adminaccess;
+GRANT CONNECT ON DATABASE school TO spectator;
+GRANT USAGE ON SCHEMA public TO spectator;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO spectator;
 
-CREATE ROLE user0 WITH PASSWORD 'tp_db';
-GRANT readaccess TO user0;
+GRANT CONNECT ON DATABASE school TO owner_user;
+GRANT USAGE ON SCHEMA public TO owner_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO owner_user;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO owner_user;
 
-CREATE ROLE admin0 WITH PASSWORD 'tp_db';
-GRANT adminaccess TO admin0;
+ALTER DATABASE school OWNER TO owner_user;
+ALTER TABLE classes OWNER TO owner_user;
+ALTER TABLE students OWNER TO owner_user;
+
+ALTER USER admin_user WITH SUPERUSER;
+
+\du
+\dp
+\dt
